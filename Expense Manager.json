@@ -1,0 +1,2239 @@
+{
+  "name": "Expense Manager",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a573fb5-de83-4506-9706-497a5a092dc8",
+              "name": "ID",
+              "value": "={{ $json.ID }}",
+              "type": "number"
+            },
+            {
+              "id": "7199ee71-a0c6-4c1b-a006-a543c5c558e3",
+              "name": "DATE",
+              "value": "={{ $json.DATE }}",
+              "type": "string"
+            },
+            {
+              "id": "76118a1d-40cc-4e88-9ad8-a3cc4b2a08f6",
+              "name": "CATEGORY",
+              "value": "={{ $json.CATEGORY }}",
+              "type": "string"
+            },
+            {
+              "id": "85ec70ff-e59c-4e4e-b016-4303d0a99eb5",
+              "name": "DEPARTMENT",
+              "value": "={{ $json.DEPARTMENT }}",
+              "type": "string"
+            },
+            {
+              "id": "9b48aea7-4988-4f28-abf8-1a71e17ae723",
+              "name": "DESCRIPTION",
+              "value": "={{ $json.DESCRIPTION }}",
+              "type": "string"
+            },
+            {
+              "id": "0ac4952b-f4ba-4182-97f4-b87532532cbe",
+              "name": "AMOUNT",
+              "value": "={{ $json.AMOUNT }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        -384
+      ],
+      "id": "78837961-2acc-4e27-b5ee-c5d089f649af",
+      "name": "Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input data safely\nconst data = $input.first().json.data || [];\n\n// Create a summary text that includes description and other fields\nconst text = data.map(item => `\nID: ${item.ID}\nDepartment: ${item.DEPARTMENT}\nDescription: ${item.DESCRIPTION}\nAmount: ${item.AMOUNT}\nCategory: ${item.CATEGORY}\n`).join(\"\\n---\\n\");\n\n// Return as JSON for the next node\nreturn [\n  {\n    json: {\n      summaryInput: text\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -384
+      ],
+      "id": "086a4546-d95b-4eae-9419-496fc255eb64",
+      "name": "Input Summary"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional financial assistant that summarizes company expense data for management review.  \nYour goal is to provide a clear, insightful, and executive-ready financial summary.\n\nYou will be given a list of recent expense entries.  \nEach entry includes a Date, Department, Description, Amount (in Rs.), and Category.\n\nAnalyze the entire dataset carefully and produce a structured summary report.  \n\n\n🧩 Input Data:  \n{{ $json.summaryInput }}\n\n\n🎯 Your Tasks:\n\n1. Count the total number of expense entries.  \n2. Calculate the total spending amount (in Rs.).  \n3. Identify the top 3 categories by total spend.  \n4. Identify the top 3 departments by total spend and explain their contribution briefly.  \n5. Mention any unusual or notable items (e.g., large purchases, repeated subscriptions, or irregular expenses).  \n6. Write a concise professional summary evaluating the week’s spending patterns, which departments drove the most cost, and overall financial health.  \n\nMake sure your writing is professional, well-structured, and easy to read.  \nDo not use markdown formatting such as **, *, or # — only use emojis for section titles and structure.  \nAdd extra spacing between every section for better readability.  \n\n\n⚙️ Output Format (Strictly Follow This):\n\n\n🧾 Weekly Expense Summary  \n\nTotal Entries: X  \nTotal Spending: Rs. X,XXX  \n\n\n\n🏢 Top Departments:  \n\nDepartment A – Rs. X,XXX  \nDepartment B – Rs. X,XXX  \nDepartment C – Rs. X,XXX  \n\n\n\n💼 Top Categories:  \n\nCategory A – Rs. X,XXX  \nCategory B – Rs. X,XXX  \nCategory C – Rs. X,XXX  \n\n\n\n🔎 Notable Insights:  \n[List any large, irregular, or repeating expenses that stand out. Mention specific items or spending spikes if relevant.]  \n\n\n\n📊 Summary:  \nThis week’s spending was primarily driven by the [Department(s)], especially within [Category or activity].  \nOverall, the company’s expenses appear [efficient / high / moderate / well-managed], with [key observation about spending behavior or pattern].\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        -480
+      ],
+      "id": "78ccbef6-5980-495e-a3c0-863e44575090",
+      "name": "Agent 2"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Key 1",
+        "contextWindowLength": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        -256
+      ],
+      "id": "95df56b7-1f3d-4c74-b6e5-9964b437c1d4",
+      "name": "Memory 2"
+    },
+    {
+      "parameters": {
+        "sendTo": "abdulrehman657.pk@gmail.com",
+        "subject": "Weekly Expense Summary – Week Ending",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; line-height:1.5; color: #333;\">\n    <p>Dear Company,</p>\n\n    <p>Please find below the summary of company expenses for this week:</p>\n\n    <div style=\"background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #ddd;\">\n      <pre style=\"white-space: pre-wrap; font-family: Arial, sans-serif;\">\n{{ $json.output }}\n      </pre>\n    </div>\n\n    <p>If you have any questions or need further details, feel free to reach out.</p>\n\n    <p>Best regards,<br/>\n    Finance Team</p>\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        -384
+      ],
+      "id": "912e480a-b949-4f15-b91e-45685e23f36c",
+      "name": "Mail",
+      "webhookId": "4bbd73a5-3ef7-45f7-91da-662ed2239969",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aKqfhqTiLcsBf0Z8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        -384
+      ],
+      "id": "098657ff-9d6f-4c74-a892-d97a2c59307e",
+      "name": "Weekly Trigger"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        480
+      ],
+      "id": "a266e4b6-24ba-412b-b21e-d2547fecb6e4",
+      "name": "Monthly Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.nextId }}",
+            "DESCRIPTION": "=-----------------------------------------------(END OF WEEK)---------------------",
+            "AMOUNT": "-------------------------------------",
+            "DATE": "----------------------------------------------------------------------------------------------------------------------------------------",
+            "CATEGORY": "="
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CATEGORY",
+              "displayName": "CATEGORY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEPARTMENT",
+              "displayName": "DEPARTMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DESCRIPTION",
+              "displayName": "DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AMOUNT",
+              "displayName": "AMOUNT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2080,
+        -384
+      ],
+      "id": "511536f5-75a9-4297-88fc-c47cb41a494b",
+      "name": "Dash",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.ID }}",
+            "DESCRIPTION": "=-----------------------------------------------(END OF MONTH)---------------------",
+            "AMOUNT": "=--------[{ Summary Sent }]---------",
+            "DATE": "----------------------------------------------------------------------------------------------------------------------------------------"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CATEGORY",
+              "displayName": "CATEGORY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEPARTMENT",
+              "displayName": "DEPARTMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DESCRIPTION",
+              "displayName": "DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AMOUNT",
+              "displayName": "AMOUNT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        480
+      ],
+      "id": "678db6fc-7bbf-4cf7-89a8-3d3282aa1946",
+      "name": "Dash 2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU",
+          "mode": "list",
+          "cachedResultName": "Expenses RAW",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "DESCRIPTION": "={{ $json.DESCRIPTION }}",
+            "AMOUNT": "={{ $json.AMOUNT }}",
+            "DATE": "={{ $json.DATE }}",
+            "CATEGORY": "={{ $json.CATEGORY }}",
+            "DEPARTMENT": "={{ $json.DEPARTMENT }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CATEGORY",
+              "displayName": "CATEGORY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEPARTMENT",
+              "displayName": "DEPARTMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DESCRIPTION",
+              "displayName": "DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AMOUNT",
+              "displayName": "AMOUNT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        480
+      ],
+      "id": "e2663104-bb67-4ea6-a828-72c54a88f8f3",
+      "name": "Raw Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09EHHNMS93",
+          "mode": "list",
+          "cachedResultName": "all-general"
+        },
+        "text": "=Dear Company,\n\nPlease find below the summary of company expenses for this week:\n\n{{ $('Agent 2').item.json.output }}\n\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest regards,\nFinance Team\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1632,
+        -384
+      ],
+      "id": "39210362-1c1b-4b66-96d2-35493791f8ac",
+      "name": "Slack",
+      "webhookId": "772128e0-3d26-48b6-8a8e-1d48d46ab9b6",
+      "credentials": {
+        "slackApi": {
+          "id": "8kdZB0gOxFj4rHiR",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const summary = $('Input Summary').first().json.summaryInput || \"\";\n\n// Match all occurrences of \"ID: <number>\"\nconst matches = [...summary.matchAll(/ID:\\s*(\\d+)/g)];\n\n// Get the last ID\nconst lastMatch = matches[matches.length - 1];\nconst lastId = lastMatch ? parseInt(lastMatch[1], 10) : 0;\n\n// Compute next ID\nconst nextId = lastId + 1;\n\nreturn [\n  {\n    json: {\n      lastId,\n      nextId\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        -384
+      ],
+      "id": "73ba929d-b6c7-4656-9280-fca35b90d964",
+      "name": "ID Finder"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1️⃣ Get all rows from Google Sheets\nconst rows = items.map(item => item.json);\n\n// 2️⃣ Filter only valid expense rows (ignore empty rows or separator rows)\nconst validRows = rows.filter(row => {\n  const desc = row.DESCRIPTION ? row.DESCRIPTION.trim() : \"\";\n  const idStr = row.ID ? row.ID.toString().replace(/,/g, '').trim() : \"\";\n\n  // Only include rows with a numeric ID and a non-empty, non-separator description\n  return desc !== \"\" && !/^-+$/.test(desc) && !isNaN(parseInt(idStr, 10));\n});\n\n// 3️⃣ Extract all numeric IDs\nconst numericIds = validRows.map(row => parseInt(row.ID.toString().replace(/,/g,''), 10));\n\n// 4️⃣ Find the last numeric ID\nconst lastId = numericIds.length > 0 ? Math.max(...numericIds) : 0;\n\n// 5️⃣ Next ID = last ID + 2\nconst nextId = lastId + 2;\n\n// 6️⃣ Build the End of Month row\nconst endOfMonthRow = {\n  ID: nextId,\n  DATE: new Date().toISOString().split('T')[0], // YYYY-MM-DD\n  CATEGORY: '',\n  DESCRIPTION: 'End of Month',\n  AMOUNT: ''\n};\n\n// 7️⃣ Return as single item for Google Sheets append/update\nreturn [{ json: endOfMonthRow }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        480
+      ],
+      "id": "60c8210f-f99f-482d-bdf4-bf3e2ed33663",
+      "name": "ID Finder 2"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        1440
+      ],
+      "id": "27c9b0c3-e166-4ecf-9dd5-3b4c571c3f65",
+      "name": "Telegram Trigger",
+      "webhookId": "58f27589-246f-4578-afb9-145fb8cf9133",
+      "credentials": {
+        "telegramApi": {
+          "id": "Zo0r2GagnDYpaAfF",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        1440
+      ],
+      "id": "ed69db60-bb79-4fc8-b5cf-acbe8d3181a3",
+      "name": "Telegram",
+      "webhookId": "abc61d96-34ab-4c67-ad64-0100e7353128",
+      "credentials": {
+        "telegramApi": {
+          "id": "Zo0r2GagnDYpaAfF",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        64
+      ],
+      "id": "cca2c983-9cf7-46e8-a85e-a4f5be468200",
+      "name": "Weekly Trigger For Departments"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9aa90e4c-084f-4636-af48-53461b114f00",
+              "leftValue": "={{ $json.DESCRIPTION }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9a2211c0-96f2-48ef-8a7a-55f83907c79c",
+              "leftValue": "={{ $json.DATE }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        64
+      ],
+      "id": "97ca7c35-873e-4972-9a61-71f38ec16813",
+      "name": "Empty Rows Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all rows from the sheet\nconst rows = $input.all().map(item => item.json);\n\n// ✅ Filter out completely empty rows (no ID, Description, Department, etc.)\nconst cleanRows = rows.filter(row => {\n  return (\n    String(row.ID || \"\").trim() !== \"\" ||\n    String(row.DESCRIPTION || \"\").trim() !== \"\" ||\n    String(row.DEPARTMENT || \"\").trim() !== \"\" ||\n    String(row.CATEGORY || \"\").trim() !== \"\" ||\n    String(row.AMOUNT || \"\").trim() !== \"\"\n  );\n});\n\n// ✅ Identify separator rows (---)\nconst separatorIndexes = cleanRows\n  .map((row, i) => {\n    const desc = String(row.DESCRIPTION || \"\").trim();\n    const id = String(row.ID || \"\").trim();\n    return (desc.includes(\"---\") || id.includes(\"---\")) ? i : null;\n  })\n  .filter(i => i !== null);\n\n// ✅ Handle case: No separators found (new month or week)\nif (separatorIndexes.length === 0) {\n  console.log(\"⚠️ No separators found. Returning all available data.\");\n  \n  // If there’s no data at all, return nothing\n  if (cleanRows.length === 0) {\n    return [];\n  }\n\n  // Otherwise, group whatever valid data exists\n  const grouped = {};\n  for (const row of cleanRows) {\n    const dept = row.DEPARTMENT || \"Unknown\";\n    if (!grouped[dept]) grouped[dept] = [];\n    grouped[dept].push(row);\n  }\n\n  return Object.entries(grouped).map(([dept, entries]) => ({\n    json: {\n      department: dept,\n      entries: entries.map(e => ({\n        ID: e.ID,\n        Date: e.DATE,\n        Description: e.DESCRIPTION,\n        Amount: e.AMOUNT,\n        Category: e.CATEGORY\n      }))\n    }\n  }));\n}\n\n// ✅ Otherwise: extract data between last two separators\nconst lastSeparator = separatorIndexes[separatorIndexes.length - 1];\nconst secondLastSeparator = separatorIndexes[separatorIndexes.length - 2] ?? -1;\n\nconst latestWeekData = cleanRows.slice(secondLastSeparator + 1, lastSeparator);\n\n// ✅ Group by department\nconst grouped = {};\nfor (const row of latestWeekData) {\n  const dept = row.DEPARTMENT || \"Unknown\";\n  if (!grouped[dept]) grouped[dept] = [];\n  grouped[dept].push(row);\n}\n\n// ✅ Convert to n8n items\nreturn Object.entries(grouped).map(([dept, entries]) => ({\n  json: {\n    department: dept,\n    entries: entries.map(e => ({\n      ID: e.ID,\n      Date: e.DATE,\n      Description: e.DESCRIPTION,\n      Amount: e.AMOUNT,\n      Category: e.CATEGORY\n    }))\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        64
+      ],
+      "id": "4e6c4db6-3b9b-4217-9f81-eb89eb38d50c",
+      "name": "Formatting"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional financial assistant creating weekly expense summaries for company departments.\n\nBelow is the expense data for one department:\n\n{{ $json.department }}\n{{ $json.summaryText }}\n\nYour tasks:\n1. Count total expense entries.\n2. Calculate total spending (in Rs).\n3. Identify the top 3 categories by spending.\n4. Mention any notable or unusual expenses (large purchases, irregular costs, etc.).\n5. Write a professional, executive-style summary for that department’s manager.\n\nMake sure your writing is polished and easy to read, with extra spacing between sections.  \nDo not use any markdown formatting such as **, *, or # — only use emojis for section titles and visual clarity.  \n\n\n⚙️ Output Format (follow exactly):\n\n🏢 Department: {{ $json.department }}\n\n\n\n🧾 Weekly Expense Summary  \nTotal Entries: X  \nTotal Spending: Rs. X,XXX  \n\n\n\nTop Categories:  \n1️⃣ Category A – Rs. X,XXX  \n2️⃣ Category B – Rs. X,XXX  \n3️⃣ Category C – Rs. X,XXX  \n\n\n\nNotable Insights:  \n- [Mention major purchase or unusual spending]  \n- [Mention any interesting trend or operational factor]  \n\n\n\nSummary:  \nThis week, the {{ $json.department }} department mainly spent on […]. Spending was [efficient / moderate / high], primarily due to […].  \nOverall, financial management appears [well-controlled / needs review / balanced], with spending aligned to operational needs and goals.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        64
+      ],
+      "id": "c0e3ebb2-21a8-43b6-80d1-89570b1e6ef1",
+      "name": "Agent 1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A",
+          "mode": "list",
+          "cachedResultName": "Departments For Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Department",
+              "lookupValue": "={{ $('Input Format 1').item.json.department }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1184,
+        64
+      ],
+      "id": "a93cd42e-089c-4008-a262-cb2bf31194eb",
+      "name": "Department's Mails",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Department Email'] }}",
+        "subject": "=Weekly Expense Summary – {{ $json.Department }}",
+        "message": "=<p>Hello <strong>{{ $json.Department }}</strong> Team,</p>\n\n<p>Here’s your weekly expense summary for review and recordkeeping 📊</p>\n\n<pre style=\"background:#f6f6f6;padding:10px;border-radius:8px;\">\n{{ $('Agent 1').item.json.output }}\n</pre>\n\n<p>💡 <strong>Note:</strong><br>\nThis summary reflects all recorded transactions for your department during the past week.<br>\nPlease verify the entries and report any discrepancies before <strong>Monday noon</strong>.\n</p>\n\n<p>Best regards,<br>\nFinance Department<br>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        64
+      ],
+      "id": "df0de570-6112-4efa-9d21-457b9b76666f",
+      "name": "Mail To Departments",
+      "webhookId": "4652cbbd-bb0a-4149-bdc6-c3e3f578a884",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aKqfhqTiLcsBf0Z8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "key",
+        "contextWindowLength": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        976,
+        288
+      ],
+      "id": "9987a9a4-4c2c-41b1-866d-07f4a06121b5",
+      "name": "Memory 1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        848,
+        288
+      ],
+      "id": "61c788fb-e657-4f94-9ba0-ed1d6aac200a",
+      "name": "Gemini 1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHxzMHwF8XBljE0m",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        -256
+      ],
+      "id": "3b07fc37-2c72-4946-97d4-90bc776851e2",
+      "name": "Gemini 2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHxzMHwF8XBljE0m",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        64
+      ],
+      "id": "3fac6998-b6c6-496e-88bb-4e91570645bd",
+      "name": "Sheet Info. 1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        -384
+      ],
+      "id": "46813ba4-2d29-4f75-a6ea-afb56d6da410",
+      "name": "Sheet's Info. 2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        480
+      ],
+      "id": "bff51619-270f-4135-9cc8-527e9c4c3e72",
+      "name": "Sheet's Info. 3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        480
+      ],
+      "id": "5f5cf914-ba65-47ea-8864-ed22b9683c42",
+      "name": "Sheet's Info. 4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8ee529ea-d5f7-4a01-902c-85f7d77ddd45",
+              "leftValue": "={{ $json.DATE }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "bd983ace-cac7-4433-b88a-a78229a87bfe",
+              "leftValue": "={{ $json.DESCRIPTION }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        480
+      ],
+      "id": "61fb548c-52b4-47b6-a8cf-fc875fc6a735",
+      "name": "Filter For Rows 2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Map all rows from Google Sheets (n8n 'items' variable)\nconst rows = items.map(i => i.json || {});\n\n// Helper: check if cell is a separator (like --- or contains END OF MONTH)\nfunction isSeparatorCell(val) {\n  if (val === undefined || val === null) return false;\n  const s = String(val).trim().toUpperCase();\n  return (\n    /^-+$/.test(s) ||        // full line of dashes\n    s.includes('END OF MONTH')\n  );\n}\n\n// Find the last separator line (check DATE, DESCRIPTION, or AMOUNT)\nlet lastSeparatorIndex = -1;\nrows.forEach((row, index) => {\n  if (\n    isSeparatorCell(row.DATE) ||\n    isSeparatorCell(row.DESCRIPTION) ||\n    isSeparatorCell(row.AMOUNT)\n  ) {\n    lastSeparatorIndex = index;\n  }\n});\n\n// Helper: check if a cell has real data (not empty, not separator, not placeholder)\nfunction hasRealData(val) {\n  if (val === undefined || val === null) return false;\n  const s = String(val).trim();\n  if (s === '' || /^-+$/.test(s)) return false;\n  return true;\n}\n\n// Slice rows after last separator and keep only real filled data\nconst currentWeekRows = rows.slice(lastSeparatorIndex + 1).filter(row => {\n  return (\n    hasRealData(row.DATE) &&\n    hasRealData(row.DESCRIPTION) &&\n    hasRealData(row.AMOUNT) &&\n    hasRealData(row.CATEGORY) &&\n    hasRealData(row.DEPARTMENT)\n  );\n});\n\n// Return as n8n items\nreturn currentWeekRows.map(r => ({ json: r }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -384
+      ],
+      "id": "1eb175fa-dbc1-46df-8406-7a7abf8a4fe1",
+      "name": "Filter For Rows 1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all rows from the Filter node\nconst rows = $('Filter For Rows 2').all();\n\nreturn rows.map(item => {\n  return {\n    json: {\n      ID: item.json.ID,      // ✅ Keep ID\n      DEPARTMENT: \"\",        // ✅ Add empty department field\n      DATE: \"\",              // ❌ Clear date\n      CATEGORY: \"\",          // ❌ Clear category\n      DESCRIPTION: \"\",       // ❌ Clear description\n      AMOUNT: \"\"             // ❌ Clear amount\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        384
+      ],
+      "id": "1dc1dc64-a528-4895-8808-66671bd401b4",
+      "name": "ID Finder 3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NW4kRwr_LZI4aRNDGx49XjS6ZIL17OV80cKuNr_5-M0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": 0,
+            "ID": "={{ $('Filter For Rows 2').item.json.ID }}",
+            "DESCRIPTION": "={{ $json.DESCRIPTION }}",
+            "AMOUNT": "={{ $json.AMOUNT }}",
+            "DATE": "={{ $json.DATE }}",
+            "CATEGORY": "={{ $json.CATEGORY }}",
+            "DEPARTMENT": "={{ $json.DEPARTMENT }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DATE",
+              "displayName": "DATE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CATEGORY",
+              "displayName": "CATEGORY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DEPARTMENT",
+              "displayName": "DEPARTMENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DESCRIPTION",
+              "displayName": "DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AMOUNT",
+              "displayName": "AMOUNT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1504,
+        384
+      ],
+      "id": "0d2994fc-90d3-4255-8e2e-fc0a33ed6f68",
+      "name": "Clear Rows",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        576
+      ],
+      "id": "2a54acd6-6767-49ae-af54-5fca39da6e9c",
+      "name": "Aggregate 2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -384
+      ],
+      "id": "fe8513f8-967a-4d88-959a-1d387341a583",
+      "name": "Aggregate 1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aggregated = $input.first().json.data || [];\n\n// Generate a clean, professional summary text\nconst text = aggregated.map(item => \n  `• ${item.DESCRIPTION} — Rs. ${item.AMOUNT} (${item.CATEGORY})`\n).join(\"\\n\");\n\nreturn [\n  {\n    json: {\n      summaryInput: text\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        576
+      ],
+      "id": "78a57eb0-f440-4289-a74c-40201c1fed77",
+      "name": "Input Format 2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: array of departments with entries\nconst inputData = $input.all().map(i => i.json);\n\n// For each department, combine its entries into a single text block\nconst output = inputData.map(dept => {\n  const entries = dept.entries || [];\n\n  const text = entries.map(e => \n    `ID: ${e.ID}\nDate: ${e.Date}\nDescription: ${e.Description}\nAmount: ${e.Amount}\nCategory: ${e.Category}`\n  ).join(\"\\n---\\n\");\n\n  return {\n    json: {\n      department: dept.department,\n      summaryText: text\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        64
+      ],
+      "id": "d7a0d901-63e5-46df-b699-d6a2ef584f79",
+      "name": "Input Format 1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        800
+      ],
+      "id": "a46fe797-f7fa-40d4-8e71-a0ad7ec028dd",
+      "name": "Gemini 3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHxzMHwF8XBljE0m",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=Key 2",
+        "contextWindowLength": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1872,
+        800
+      ],
+      "id": "4edf0de4-2dff-4209-95e0-234d0a991a8a",
+      "name": "Memory 3"
+    },
+    {
+      "parameters": {
+        "sendTo": "abdulrehman657.pk@gmail.com",
+        "subject": "=Monthly Financial Summary Report — {{ new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-US', { month: 'long' }) }} {{ new Date(new Date().setMonth(new Date().getMonth() - 1)).getFullYear() }}",
+        "message": "=<!DOCTYPE html>\n<html>\n  <body style=\"font-family: 'Segoe UI', Arial, sans-serif; line-height:1.6; color:#333; background-color:#fafafa; padding:20px;\">\n    <div style=\"max-width:700px; margin:auto; background-color:#fff; padding:25px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);\">\n      <p style=\"font-size:16px;\">Dear Management Team,</p>\n\n      <p>\n        Please find below the monthly financial summary report for your review.  \n        Each section provides insights based on the data recorded throughout the month —  \n        where each <strong>“-----------”</strong> in the dataset marks the end of one week’s entries.\n      </p>\n\n      <hr style=\"border:none; border-top:1px solid #eee; margin:20px 0;\"/>\n\n      <div style=\"background-color:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #ddd; white-space:pre-wrap; font-family:'Segoe UI', sans-serif; font-size:15px;\">\n{{ $json.output }}\n      </div>\n\n      <hr style=\"border:none; border-top:1px solid #eee; margin:20px 0;\"/>\n\n      <p>\n        For any clarifications or deeper insights into specific categories, feel free to reach out to the Finance Department.\n      </p>\n\n      <p style=\"margin-top:25px;\">\n        Best regards,<br/>\n        <strong>Finance Team</strong><br/>\n        Company Accounts Division\n      </p>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2080,
+        576
+      ],
+      "id": "a4904a89-ed0b-4dd4-9dbf-c37c6970c523",
+      "name": "Monthly Mail",
+      "webhookId": "36acdaf2-c18f-4b58-8ed1-1202a108f182",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aKqfhqTiLcsBf0Z8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09EHHNMS93",
+          "mode": "list",
+          "cachedResultName": "all-general"
+        },
+        "text": "=Monthly Financial Summary Report — {{ new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-US', { month: 'long' }) }} {{ new Date(new Date().setMonth(new Date().getMonth() - 1)).getFullYear() }}\n\nDear Management Team\n\nPlease find below the monthly financial summary report for your review.\n\n{{ $('Agent 3').item.json.output }}\n\n        For any clarifications or deeper insights into specific categories, feel free to reach out to the Finance Department.\n\nRegards,\nFinance Team\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2304,
+        576
+      ],
+      "id": "dd6935a4-4082-4387-a2a9-d2cb8e2660d1",
+      "name": "Monthly Slack Message",
+      "webhookId": "496240c4-fcc7-4b62-afd1-8139347d86fe",
+      "credentials": {
+        "slackApi": {
+          "id": "8kdZB0gOxFj4rHiR",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        1664
+      ],
+      "id": "f92fd36a-df22-447d-8bdd-35a2326a9098",
+      "name": "Gemini 4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHxzMHwF8XBljE0m",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Key 4",
+        "contextWindowLength": 300
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        1664
+      ],
+      "id": "1b3687dd-9309-4cf9-b43e-b5579140f438",
+      "name": "Memory 4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU",
+          "mode": "list",
+          "cachedResultName": "Expenses RAW",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        1664
+      ],
+      "id": "0434270d-7e82-4055-9a1b-9f4a4374ff3f",
+      "name": "Data For Bot",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a company insights analyst skilled at turning raw expense data into a polished, narrative-style financial summary.\n\nYour task is to analyze the entire month's expense data and write a clear, professional report for management.\n\nEach section of the data separated by \"-----------\" represents one week — use these as natural boundaries to observe trends or shifts between weeks.\n\nInput Data:\n{{ $json.summaryInput }}\n\nYour Mission:\nWrite a well-balanced, professional monthly summary that blends numbers with insights.  \nYour summary should feel like a short internal finance report — clear, confident, and to the point.\n\nMake sure to include extra spaces between sections and avoid using any markdown formatting such as **, *, #, or similar.  \nOnly use emojis for section titles and readability.\n\n\nInclude:\n\n- Total number of expense entries and total spending (Rs.)  \n- Spending rhythm or changes across the weeks  \n- Top 3 categories by total spending  \n- Any notable or unusual expenses  \n- A brief reflection paragraph summarizing the company’s financial behavior this month\n\n\nOutput Format (Structured, Medium-Length):\n\n📘 Monthly Expense Summary — [Month Name and Year]\n\n\n🔹 Overview  \nDuring this month, the company recorded X total expenses amounting to Rs. X,XXX in total.  \nThe data covers four weeks, each showing its own pace and financial activity.\n\n\n🔸 Spending Trends  \n\nWeek 1:  \n[...]  \n\nWeek 2:  \n[...]  \n\nWeek 3:  \n[...]  \n\nWeek 4:  \n[...]  \n(Briefly mention if spending increased, stabilized, or declined over time.)\n\n\n💼 Top Spending Categories  \n\n• Category A — Rs. X,XXX  \n\n• Category B — Rs. X,XXX  \n\n• Category C — Rs. X,XXX  \n\n\n⭐ Notable Highlights  \n\n• [...] (significant purchase, subscription, or one-time event)  \n\n• [...] (pattern or irregularity worth noting)  \n\n\n🪶 Summary Reflection  \n\nOverall, this month’s spending appears [steady / slightly elevated / efficient / well-managed].  \n\nThe company maintained consistent investments in key operational areas, while managing expenses responsibly.  \n\nTrends suggest [improving cost control / consistent performance / strategic spending focus] heading into the next period.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        576
+      ],
+      "id": "a39c6309-beb3-4a07-83f3-1da870b21bda",
+      "name": "Agent 3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are TeleBot — the company’s virtual Finance Manager and Data Analyst.\n\nYou have access to the company’s Raw Google Sheets containing detailed expense data.\n\nThe sheet includes the following columns:\n\nDATE  \nDEPARTMENT  \nCATEGORY  \nDESCRIPTION  \nAMOUNT  \n\nEach row represents a single expense entry.  \nWeekly and monthly boundaries are clearly marked as follows:\n\n-----------(END OF WEEK)----------- → indicates the end of a week.  \n------------------(END OF MONTH)------------------ → indicates the end of a month.\n\nYou analyze these boundaries naturally to track week-over-week and month-over-month financial patterns.\n\n\n🎯 Your Goal:\nTo interact naturally with the company team, providing insights, summaries, and financial guidance based on the data.  \nYou think and speak like a real finance manager — calm, insightful, slightly formal, and concise.\n\n\n💡 You Can:\n- Summarize weekly or monthly spending (overall or per department)\n- Identify top spending departments and categories\n- Compare department performance week-to-week or month-to-month\n- Explain financial patterns (e.g. “Operations spent more on logistics this week compared to admin supplies.”)\n- Detect unusual or large expenses\n- Reflect on cost efficiency or areas for improvement\n- Discuss financial discipline and budget focus\n\n\n📏 Important Rules:\n- Never reveal raw data unless specifically asked.\n- If data isn’t available, say so politely (“I don’t have that week’s data yet.”).\n- Keep replies short, confident, and structured — as if you’re briefing management.\n- Mention departments naturally in your summaries.\n- Use emojis like 📊, 💼, 💰 subtly — for clarity, not decoration.\n- Recognize and interpret “-----------(END OF WEEK)-----------” and “------------------(END OF MONTH)------------------” as boundary markers for your analysis.\n- Always summarize insights clearly, with professional spacing and tone.\n\n\n🧾 Example Interactions\n\nHuman: “Hey, how much did we spend this week?”  \nYou: “📊 This week’s total spending is Rs. 148,500 across 12 entries. The top department was Marketing, driven by ad renewals and campaign material purchases.”\n\nHuman: “Which department spent the most this month?”  \nYou: “💼 The Operations department led spending this month with Rs. 285,000, mainly for transport, repairs, and logistics support.”\n\nHuman: “Anything unusual recently?”  \nYou: “💰 There was an unusually large renewal under IT — Rs. 90,000 for software licenses. Everything else stayed within normal weekly limits.”\n\n\nYou are now TeleBot — the company’s virtual Finance Manager.  \nRespond to every message as if you’re briefing your team about real company expenses.\n\nThe Message: {{ $json.message.text }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        1440
+      ],
+      "id": "2d413704-c924-403e-8ad6-ac1f8e32ac1e",
+      "name": "Agent 4"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        1008
+      ],
+      "id": "cf2bfa36-2347-4b0d-b700-3750ff73adaa",
+      "name": "Monthly Trigger For Departments"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eb834fe5-a08c-4e9c-84a9-ac059cd21879",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Marketing",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "26994af0-755e-4520-9ada-9e6e75bd9b26",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Sales",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "09278cac-92e0-4892-9e93-5cc540434d6c",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Finance",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "18e4f491-e94a-480b-ac09-4398c2639e31",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "HR (Human Resources)",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "ce4d1f69-75b6-4565-9396-1451ebdd468b",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "IT (Information Technology)",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "cf780aa5-9183-45a3-b763-78cf6470df16",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Operations / Admin",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "804023c8-70d5-4125-a684-da6ffd7062ce",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Customer Support",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "01cd16bd-a6ba-4ed3-b2eb-6a31c4719810",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "R&D / Product Development",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "f79e5a0c-7e39-4cd5-8d1c-6862141578b9",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Procurement / Purchasing",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "be1d5755-3abc-49af-9dbe-4844c3b2eb30",
+              "leftValue": "={{ $json.department }}",
+              "rightValue": "Management / Executive",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        1008
+      ],
+      "id": "45406039-4994-4dc0-b08e-b5f7ba3e3639",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Key 3",
+        "contextWindowLength": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        976,
+        1232
+      ],
+      "id": "e3334989-caf9-4e9f-acfc-4147eac02939",
+      "name": "Memory 5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        848,
+        1232
+      ],
+      "id": "6c8b3892-f16f-426e-93dc-07b775b888b3",
+      "name": "Gemini 5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHxzMHwF8XBljE0m",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU",
+          "mode": "list",
+          "cachedResultName": "Expenses RAW",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JXSQ7LkOyCxpFWbOTJAXVxfKni1bfL4XMoylUcSSgCU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        1008
+      ],
+      "id": "d92e6609-32c2-44fe-a723-666a89d92b5e",
+      "name": "Sheet Info. 5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all rows from the sheet\nconst rows = $input.all().map(item => item.json);\n\n// ✅ Filter out empty rows\nconst cleanRows = rows.filter(row => {\n  return (\n    String(row.ID || \"\").trim() !== \"\" ||\n    String(row.DESCRIPTION || \"\").trim() !== \"\" ||\n    String(row.DEPARTMENT || \"\").trim() !== \"\" ||\n    String(row.CATEGORY || \"\").trim() !== \"\" ||\n    String(row.AMOUNT || \"\").trim() !== \"\"\n  );\n});\n\n// ✅ Identify month-end separators (match any text containing END OF MONTH)\nconst monthSeparators = cleanRows\n  .map((row, i) => {\n    const desc = String(row.DESCRIPTION || \"\").toUpperCase().trim();\n    const id = String(row.ID || \"\").toUpperCase().trim();\n    return (desc.includes(\"END OF MONTH\") || id.includes(\"END OF MONTH\")) ? i : null;\n  })\n  .filter(i => i !== null);\n\n// ✅ Handle case: no month separators found\nif (monthSeparators.length === 0) {\n  console.log(\"⚠️ No month-end separators found. Returning all data.\");\n\n  if (cleanRows.length === 0) return [];\n\n  const grouped = {};\n  for (const row of cleanRows) {\n    const dept = row.DEPARTMENT || \"Unknown\";\n    if (!grouped[dept]) grouped[dept] = [];\n    grouped[dept].push(row);\n  }\n\n  return Object.entries(grouped).map(([dept, entries]) => ({\n    json: {\n      department: dept,\n      entries: entries.map(e => ({\n        ID: e.ID,\n        Date: e.DATE,\n        Description: e.DESCRIPTION,\n        Amount: e.AMOUNT,\n        Category: e.CATEGORY\n      }))\n    }\n  }));\n}\n\n// ✅ Otherwise: extract data between last two \"END OF MONTH\" lines\nconst lastMonthSeparator = monthSeparators[monthSeparators.length - 1];\nconst secondLastMonthSeparator = monthSeparators[monthSeparators.length - 2] ?? -1;\n\n// ✅ Only take rows between those two markers\nconst latestMonthData = cleanRows.slice(secondLastMonthSeparator + 1, lastMonthSeparator);\n\n// ✅ Group by department\nconst grouped = {};\nfor (const row of latestMonthData) {\n  const dept = row.DEPARTMENT || \"Unknown\";\n  if (!grouped[dept]) grouped[dept] = [];\n  grouped[dept].push(row);\n}\n\n// ✅ Return as multiple items for AI or Gmail summary\nreturn Object.entries(grouped).map(([dept, entries]) => ({\n  json: {\n    department: dept,\n    entries: entries.map(e => ({\n      ID: e.ID,\n      Date: e.DATE,\n      Description: e.DESCRIPTION,\n      Amount: e.AMOUNT,\n      Category: e.CATEGORY\n    }))\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        1008
+      ],
+      "id": "51516f7b-c9c8-4483-9d40-771174029271",
+      "name": "Formatting 2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: array of departments with entries\nconst inputData = $input.all().map(i => i.json);\n\n// For each department, combine its entries into a single text block\nconst output = inputData.map(dept => {\n  const entries = dept.entries || [];\n\n  const text = entries.map(e => \n    `ID: ${e.ID}\nDate: ${e.Date}\nDescription: ${e.Description}\nAmount: ${e.Amount}\nCategory: ${e.Category}`\n  ).join(\"\\n---\\n\");\n\n  return {\n    json: {\n      department: dept.department,\n      summaryText: text\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        1008
+      ],
+      "id": "6be0b7ba-2f09-412e-99b4-71f6f0131f35",
+      "name": "Input Format 3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a company insights analyst skilled at turning raw departmental expense data into a polished, narrative-style monthly report.\n\nYour task is to analyze one department’s entire month of expenses and write a professional financial summary for internal management review.\n\nEach section of the data separated by \"-----------\" represents one week — use these as natural boundaries to observe week-to-week shifts or changes.\n\nDepartment: {{ $json.department }}\nInput Data: {{ $json.summaryText }}\n\nYour Mission:\nWrite a clear, well-balanced monthly summary for this department that combines data and insights.  \nKeep it professional, readable, and structured — like an internal finance report from an analyst to management.\n\n❗IMPORTANT INSTRUCTIONS:\n- DO NOT use ** or any markdown formatting.\n- KEEP proper spacing and blank lines between every section.\n- ADD extra blank lines between each week, category, and bullet point.\n- OUTPUT ONLY the formatted summary (no explanations or system text).\n\nFollow this exact output structure:\n\n\n📘 Monthly Expense Summary — [Department Name] — [Month and Year]\n\n\n🔹 Overview  \nDuring this month, the department recorded a total of X expense entries amounting to Rs. X,XXX.  \nThe data spans four weeks, reflecting the department’s operational spending patterns and priorities.  \n\n\n\n🔸 Spending Trends  \n\n\nWeek 1:  \n[Describe spending pattern, total amount, and key focus areas.]  \n\n\n\nWeek 2:  \n[Describe any changes, increased activity, or major costs.]  \n\n\n\nWeek 3:  \n[Note stability, unusual purchases, or efficiency improvements.]  \n\n\n\nWeek 4:  \n[Describe closing trends, reduced or intensified spending.]  \n\n\n\n💼 Top Spending Categories  \n\n\n• [Category 1] — Rs. X,XXX  \n\n• [Category 2] — Rs. X,XXX  \n\n• [Category 3] — Rs. X,XXX  \n\n\n\n⭐ Notable Highlights  \n\n\n• [Mention one-time or unusual purchases.]  \n\n• [Highlight anything that stood out financially.]  \n\n• [Note strategic or operational spending insights.]  \n\n\n\n🪶 Summary Reflection  \nOverall, the department’s spending this month appears [efficient / steady / high / focused].  \nThe team demonstrated a [strategic / cost-aware / consistent] approach to financial management, aligning with operational goals.  \nTrends suggest [improving cost efficiency / steady control / focused investment] going into the next month.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        1008
+      ],
+      "id": "f7f9e12a-c208-4e84-af20-0a34fcafaabb",
+      "name": "Agent 5"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A",
+          "mode": "list",
+          "cachedResultName": "Departments For Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19spMOBmekD6PIlHmQsMM5-xzTlcRYV5h0JEuHzjKr6A/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Department",
+              "lookupValue": "={{ $('Input Format 3').item.json.department }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1184,
+        1008
+      ],
+      "id": "a4638125-4328-4d25-9b28-16894e2bb00c",
+      "name": "Department Mails",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ma60tQuZbFyqC1iq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Department Email'] }}",
+        "subject": "=📘 Monthly Expense Summary — {{ $json.Department }}",
+        "message": "=<p>Hello <strong>{{ $json.Department }}</strong> Team,</p>\n\n<p>Here’s your monthly expense summary for review and recordkeeping 📊</p>\n\n<pre style=\"background:#f6f6f6;padding:10px;border-radius:8px;\">\n{{ $('Agent 5').item.json.output }}\n</pre>\n\n<p>💡 <strong>Note:</strong><br>\nThis summary reflects all recorded transactions for your department during the past month.<br>\nPlease verify the entries and report any discrepancies before <strong>Monday noon</strong>.\n</p>\n\n<p>Best regards,<br>\nFinance Department<br>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        1008
+      ],
+      "id": "2a52e53e-2008-4b63-ad11-ff460410ba9a",
+      "name": "Monthly Mail To Department",
+      "webhookId": "12150584-d00b-4366-b202-75d3c49ae3f5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aKqfhqTiLcsBf0Z8",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Summary": {
+      "main": [
+        [
+          {
+            "node": "Agent 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 2": {
+      "main": [
+        [
+          {
+            "node": "Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory 2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent 2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mail": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sheet's Info. 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sheet's Info. 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dash 2": {
+      "main": [
+        [
+          {
+            "node": "Sheet's Info. 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Raw Data": {
+      "main": [
+        [
+          {
+            "node": "ID Finder 3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        [
+          {
+            "node": "ID Finder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID Finder": {
+      "main": [
+        [
+          {
+            "node": "Dash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID Finder 2": {
+      "main": [
+        [
+          {
+            "node": "Dash 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agent 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Trigger For Departments": {
+      "main": [
+        [
+          {
+            "node": "Sheet Info. 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empty Rows Filter": {
+      "main": [
+        [
+          {
+            "node": "Formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting": {
+      "main": [
+        [
+          {
+            "node": "Input Format 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 1": {
+      "main": [
+        [
+          {
+            "node": "Department's Mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Department's Mails": {
+      "main": [
+        [
+          {
+            "node": "Mail To Departments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory 1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent 1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet Info. 1": {
+      "main": [
+        [
+          {
+            "node": "Empty Rows Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet's Info. 2": {
+      "main": [
+        [
+          {
+            "node": "Filter For Rows 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet's Info. 3": {
+      "main": [
+        [
+          {
+            "node": "ID Finder 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet's Info. 4": {
+      "main": [
+        [
+          {
+            "node": "Filter For Rows 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter For Rows 2": {
+      "main": [
+        [
+          {
+            "node": "Raw Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter For Rows 1": {
+      "main": [
+        [
+          {
+            "node": "Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID Finder 3": {
+      "main": [
+        [
+          {
+            "node": "Clear Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Rows": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate 2": {
+      "main": [
+        [
+          {
+            "node": "Input Format 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate 1": {
+      "main": [
+        [
+          {
+            "node": "Input Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Format 2": {
+      "main": [
+        [
+          {
+            "node": "Agent 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Format 1": {
+      "main": [
+        [
+          {
+            "node": "Agent 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory 3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent 3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Mail": {
+      "main": [
+        [
+          {
+            "node": "Monthly Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Slack Message": {
+      "main": [
+        []
+      ]
+    },
+    "Gemini 4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory 4": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent 4",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data For Bot": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent 4",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 3": {
+      "main": [
+        [
+          {
+            "node": "Monthly Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 4": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Trigger For Departments": {
+      "main": [
+        [
+          {
+            "node": "Sheet Info. 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Input Format 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory 5": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent 5",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent 5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet Info. 5": {
+      "main": [
+        [
+          {
+            "node": "Formatting 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting 2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Format 3": {
+      "main": [
+        [
+          {
+            "node": "Agent 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent 5": {
+      "main": [
+        [
+          {
+            "node": "Department Mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Department Mails": {
+      "main": [
+        [
+          {
+            "node": "Monthly Mail To Department",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4d2d9e73-a727-4789-831b-7c8b36df99b8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "64d62ff8b412d40100ac5e53bfe35f98ec15d9a248e405071ff9001fe8e81542"
+  },
+  "id": "VvfCcjelL42xqCpW",
+  "tags": []
+}
