@@ -9,8 +9,7 @@ In this project, I built an **automated expense management workflow** for a comp
 It tracks all expenses from Google Sheets, generates **weekly and monthly summaries** for the **CEO and each department**,  
 and even includes a **Telegram chatbot** for querying insights from the data.
 
-Watch The Video: (https://vimeo.com/1131609819)
-
+Watch The Video: (https://youtu.be/bQmBTpgwqpw)
 ---
 
 ## ⚙️ Features
